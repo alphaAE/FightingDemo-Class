@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 
 public class FightingDemo implements GLEventListener {
 
@@ -25,7 +27,7 @@ public class FightingDemo implements GLEventListener {
 
         glcanvas = new GLCanvas(capabilities);
         glcanvas.addGLEventListener(this);
-        glcanvas.setSize(1600, 1600);
+        glcanvas.setSize(1600 / 1, 1600 / 1);
 
         frame = new JFrame("FightingDemo");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -62,6 +64,13 @@ public class FightingDemo implements GLEventListener {
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+
+
+        gl.glListBase(1000);
+        gl.glRasterPos2f(100f, 150f);
+        String content = "Hello";
+        gl.glCallLists(20, GL2.GL_UNSIGNED_BYTE, ByteBuffer.wrap(content.getBytes()));
+
         gameScene.rander();
         gl.glFlush();
     }

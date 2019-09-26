@@ -1,13 +1,11 @@
 package com.alphaae.gl.fighting;
 
-import com.alphaae.gl.fighting.model.AircraftEnemy;
-import com.alphaae.gl.fighting.model.AircraftPlayer;
-import com.alphaae.gl.fighting.model.Ammunition;
-import com.alphaae.gl.fighting.model.Background;
+import com.alphaae.gl.fighting.model.*;
 import com.jogamp.opengl.GL2;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,29 +15,37 @@ public class GameScene {
     private GL2 gl;
 
     private AircraftPlayer player;
+    private Boss boss;
     private Background background;
 
     private List<Ammunition> ammunitionList = new ArrayList<>();
-    private List<AircraftEnemy> enemieList = new ArrayList<>();
+    private List<AircraftEnemy> aircraftEnemies = new ArrayList<>();
 
+    int time = 0;
+    boolean randerAircraftEnemyNO = true;
+    boolean bossNO = false;
 
-    int enemyTime = 0;
+    private int score = 0;
 
     public GameScene(GL2 gl) {
         this.gl = gl;
 
         background = new Background(gl);
-        //创建玩家对象
         player = new AircraftPlayer(gl);
+
+        if (boss == null) boss = new Boss(gl);
     }
 
     //主渲染进程
     public void rander() {
+        time++;
         background.rander();
         player.rander();
-        randerAmmunition();
+
+        if (boss != null) boss.rander();
         randerAircraftEnemy();
 
+        randerAmmunition();
         collision();
     }
 
@@ -58,31 +64,43 @@ public class GameScene {
     }
 
     private void randerAircraftEnemy() {
-        enemyTime++;
-        if (enemyTime % 20 == 0) {
-            float randPosX = new Random().nextFloat() * 1600;
-            enemieList.add(new AircraftEnemy(gl, new float[]{randPosX, 1600}));
+        if (randerAircraftEnemyNO) {
+            if (time % 20 == 0) {
+                float randPosX = new Random().nextFloat() * 1600;
+                aircraftEnemies.add(new AircraftEnemy(gl, new float[]{randPosX, 1600}));
+            }
         }
 
-        for (AircraftEnemy temp : enemieList) {
+        for (AircraftEnemy temp : aircraftEnemies) {
             temp.rander();
         }
     }
 
     private void collision() {
-        Iterator<AircraftEnemy> aircraftEnemyIterator = enemieList.iterator();
+        Iterator<AircraftEnemy> aircraftEnemyIterator = aircraftEnemies.iterator();
         Iterator<Ammunition> ammunitionIterator = ammunitionList.iterator();
 
         //遍历判断碰撞 适当减小碰撞体积以达到理想效果
-        for (int i = 0; i < enemieList.size(); i++) {
+        for (int i = 0; i < aircraftEnemies.size(); i++) {
             for (int j = 0; j < ammunitionList.size(); j++) {
-                if (Utils.isIntersect(enemieList.get(i).getPosition(),
-                        enemieList.get(i).getSize()[0] - 30,
+                if (Utils.isIntersect(aircraftEnemies.get(i).getPosition(),
+                        aircraftEnemies.get(i).getCollisionBox(),
                         ammunitionList.get(j).getPosition(),
                         1)) {
-                    enemieList.remove(i);
+                    //判断死亡则移除
+                    if (aircraftEnemies.get(i).beAttacked()) {
+                        score++;
+                        System.out.println("score:" + score);
+
+                        //boss!!!!!!!!
+                        if (score > 5) {
+                            randerAircraftEnemyNO = false;
+                            bossNO = true;
+                            if (boss == null) boss = new Boss(gl);
+                        }
+                    }
                     ammunitionList.remove(j);
-                    //动画未编写
+
                     break;
                 }
             }
