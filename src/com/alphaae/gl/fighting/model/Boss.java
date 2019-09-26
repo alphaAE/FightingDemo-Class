@@ -7,6 +7,7 @@ import com.jogamp.opengl.util.texture.TextureIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class Boss {
     private GL2 gl;
@@ -21,6 +22,10 @@ public class Boss {
     private int health = 1000;
     private long time = 0;
 
+    private int ammunitionType = 10;    //def
+
+    private Random random;
+
     public Boss(GL2 gl) {
         this.gl = gl;
         try {
@@ -33,6 +38,7 @@ public class Boss {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        random = new Random();
     }
 
     int accTime = 0;
@@ -49,7 +55,7 @@ public class Boss {
         } else {
             float r = accTime += 10;
 
-            for (int i = 0; i < 360; i += 10) {
+            for (int i = 0; i < 360; i += ammunitionType) {
                 float tx = (float) ((r) * Math.cos(i) - (r) * Math.sin(i) + position[0]);
                 float ty = (float) ((r) * Math.sin(i) + (r) * Math.cos(i) + position[1]);
 
@@ -57,7 +63,10 @@ public class Boss {
 
             }
 
-            if (accTime > 1000) accTime = 0;
+            if (accTime > 1000) {
+                accTime = 0;
+                ammunitionType = random.nextInt(12) + 8;
+            }
 
         }
 

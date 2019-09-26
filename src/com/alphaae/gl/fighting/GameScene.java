@@ -33,7 +33,8 @@ public class GameScene {
         background = new Background(gl);
         player = new AircraftPlayer(gl);
 
-        if (boss == null) boss = new Boss(gl);
+        //测试用
+//        if (boss == null) boss = new Boss(gl);
     }
 
     //主渲染进程
